@@ -6,13 +6,10 @@ STACK_ERROR StackError(Stack *Stk)
     if (!Stk)
         return PtrErr;
 
-    if (!Stk->buffer)
-        return BufferErr;
-
-    if (!Stk->data)
+    if (!Stk->buffer || !Stk->data)
         return DataErr;
 
-    if (Stk->size > Stk->capacity || Stk->size > MAX_SIZE || Stk->capacity > MAX_SIZE)
+    if (Stk->size > Stk->capacity || Stk->size > MAX_SIZE)
         return SizeErr;
     
     if (Stk->Lcan != CANLS || Stk->Rcan != CANRS)
@@ -26,28 +23,58 @@ STACK_ERROR StackError(Stack *Stk)
     return OK;
 }
 
-STACK_ERROR StackDump(Stack *Stk)
+STACK_ERROR StackDump(Stack *Stk, const char* file, const char* func, int line)
 {   
+    FILE *LOG = fopen("LogFile.txt", "a");
 
-    if (!StackError) {
+    if (!LOG) {
+        fprintf(stderr, "Could not open logfile");
 
-        FILE *LOG = fopen("LogFile.txt", "a");
+        return FileErr;
+    }
 
-        fprintf(LOG,"\nLCanS = 0x%x, RCanS = 0x%x"
-                    "\nLCanA = 0x%x, RCanA = 0x%x"
-                    "\nStackSize = %u, StackCapacity = %u\n", 
-                        Stk->Lcan, Stk->Rcan, 
+    fprintf(LOG, "\nFile: %s"
+                 "\nFunc: %s"
+                 "\nLine: %u", file, func, line);
+
+    if (Stk) {
+        fprintf(LOG,"\nLCanS = 0x%x, RCanS = 0x%x\nHash = %u\n", Stk->Lcan, Stk->Rcan, Stk->Hash);
+
+        if (Stk->buffer) {
+            fprintf(LOG, "LCanA = 0x%x, RCanA = 0x%x \nStackSize = %u, StackCapacity = %u\n", 
                         *(canary_t *) Stk->buffer,  
                         *(canary_t *)(Stk->buffer + Stk->capacity*sizeof(StackElem_t) + sizeof(canary_t)),
                         Stk->size, Stk->capacity);
- 
-        for (size_t i = 0; i < Stk->capacity; i++) {
-            fprintf(LOG,"StackData[%u] = %lg\n", i, (Stk->data)[i]);
-        }
-        fclose(LOG);
 
-        return OK;        
-    } 
+            if (Stk->size <= Stk->capacity && Stk->capacity < MAX_SIZE) {
+
+                for (size_t i = 0; i < Stk->capacity; i++) {
+                    fprintf(LOG, "StackData[%u] = %lg\n", i, Stk->data[i]);
+                } 
+                fclose(LOG);
+                
+                return OK; 
+                  
+            } else {
+                fprintf(LOG, "Wrong size\n");
+                fclose(LOG);
+
+                return SizeErr;
+            }
+
+        } else {
+            fprintf(LOG, "Buffer is broken\n"); 
+            fclose(LOG);
+
+            return DataErr;
+        }
+       
+
+    } else {
+        fprintf(LOG, "Stack is not exist\n");
+
+        return DataErr;
+    }
 
     return ERROR; 
 }

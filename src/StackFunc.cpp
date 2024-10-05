@@ -4,7 +4,7 @@
 
 int StackCtor(Stack *Stk, size_t StackSize)
 {   
-    if (StackError(Stk) == 0 && StackSize < MAX_SIZE) {
+    if (Stk && StackSize < MAX_SIZE) {
         Stk->Lcan = CANLS;
         Stk->Rcan = CANRS;
         Stk->capacity = StackSize;
@@ -14,8 +14,12 @@ int StackCtor(Stack *Stk, size_t StackSize)
         Stk->data = (StackElem_t *) (Stk->buffer + sizeof(canary_t));
         *(canary_t *) Stk->buffer = CANLA;
         *(canary_t *) (Stk->buffer + sizeof(canary_t) + Stk->capacity*sizeof(StackElem_t)) = CANRA;
+        // Stk->Hash = hash(Stk, )
     // #endif //ON_DEBUG
+        STACK_DUMP(Stk);
         PoisonFill(Stk);
+
+        STACK_DUMP(Stk);
 
         return OK;
     }
@@ -52,8 +56,7 @@ int StackPush(Stack *Stk, StackElem_t elem)
     if (StackError(Stk) == 0) {
 
         if (Stk->size >= Stk->capacity) { 
-            Stk->capacity *= 2;
-            StackRec(Stk);
+            StackRec(Stk, 2);
         }
 
         if (Stk->size < Stk->capacity) {
@@ -61,7 +64,7 @@ int StackPush(Stack *Stk, StackElem_t elem)
             Stk->size += 1;
         }
 
-        StackDump(Stk);
+        STACK_DUMP(Stk);
         
         return OK;
     }
@@ -74,15 +77,14 @@ int StackPop(Stack *Stk, StackElem_t *elem)
     if (StackError(Stk) == 0 && elem) {
 
         if (Stk->size <= 0.25 * Stk->capacity && Stk->capacity > MIN_SIZE) {
-            Stk->capacity /= 2;
-            StackRec(Stk);
+            StackRec(Stk, 0.5);
         }
         
         Stk->size -= 1;
         *elem = Stk->data[Stk->size];
         Stk->data[Stk->size] = -666.666;
 
-        StackDump(Stk);
+        STACK_DUMP(Stk);
 
         return OK;
     }
@@ -93,7 +95,8 @@ int StackPop(Stack *Stk, StackElem_t *elem)
 int StackDtor(Stack *Stk)
 {   
     if (StackError(Stk) == 0) {
-        free(Stk->buffer); Stk->buffer = NULL;
+        free(Stk->buffer); 
+        Stk->buffer = NULL;
         Stk->Lcan = 0;
         Stk->Rcan = 0;
         Stk->Hash = 0;
@@ -122,17 +125,24 @@ int PoisonFill(Stack *Stk)
     return ERROR;
 }
 
-int StackRec (Stack *Stk) 
+int StackRec (Stack *Stk, double factor) 
 {   
     if (StackError(Stk) == 0) {
 
+        // STACK_DUMP(Stk);
+
+        Stk->capacity *= factor;
         Stk->buffer = realloc(Stk->buffer, Stk->capacity*sizeof(StackElem_t) + 2*sizeof(canary_t));
         Stk->data = (StackElem_t *) (Stk->buffer + sizeof(canary_t));
 
         *(canary_t *) (Stk->buffer) = CANLA;
         *(canary_t *) (Stk->buffer + sizeof(canary_t) + Stk->capacity*sizeof(StackElem_t)) = CANRA;
 
+        // STACK_DUMP(Stk);
+
         PoisonFill(Stk);
+
+        // STACK_DUMP(Stk);
 
         return OK;
     }

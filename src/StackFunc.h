@@ -15,7 +15,7 @@ enum STACK_ERROR {
     SizeErr     = 4,
     CanErr      = 8,
     DataErr     = 16,
-    BufferErr   = 32,
+    FileErr     = 32,
     HashErr     = 64,
 };
 
@@ -46,7 +46,7 @@ int  StackPushFile  (Stack *Stk, const char *FileName);
 int  StackPop       (Stack *Stk, StackElem_t *elem);
 int  StackDtor      (Stack *Stk);
 int  PoisonFill     (Stack *Stk);
-int  StackRec       (Stack *Stk);
+int  StackRec       (Stack *Stk, double factor);
 
 const size_t MIN_SIZE = 8;
 const size_t MAX_SIZE = 4000000;
