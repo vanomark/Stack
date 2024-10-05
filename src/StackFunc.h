@@ -19,24 +19,25 @@ enum STACK_ERROR {
     HashErr     = 64,
 };
 
-typedef double StackElem_t;
+typedef int StackElem_t;
 typedef size_t hash_t;
 typedef size_t canary_t;
 
 
 struct Stack {
     #ifdef ON_DEBUG
-    hash_t  Lcan;
+    canary_t     Lcan;
     #endif
 
-    double* data;
-    void*   buffer;
-    size_t  size;
-    size_t  capacity;
+    StackElem_t* data;
+    void*        buffer;
+    size_t       size;
+    size_t       capacity;
 
     #ifdef ON_DEBUG
-    hash_t  Hash;
-    hash_t  Rcan;
+    hash_t       HashStk;
+    hash_t       HashBuf;
+    canary_t     Rcan;
     #endif
 };
 

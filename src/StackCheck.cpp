@@ -20,11 +20,20 @@ STACK_ERROR StackError(Stack *Stk)
     if (LeftArrCan != CANLA || RightArrCan != CANRA)
         return CanErr;
 
+    if (Stk->HashBuf != djb2(Stk->data, Stk->capacity))
+        return HashErr;
+    
+    if (Stk->HashStk != gon1(Stk))
+        return HashErr;
+
     return OK;
 }
 
 STACK_ERROR StackDump(Stack *Stk, const char* file, const char* func, int line)
 {   
+    assert(file);
+    assert(func);
+
     FILE *LOG = fopen("LogFile.txt", "a");
 
     if (!LOG) {
@@ -38,7 +47,8 @@ STACK_ERROR StackDump(Stack *Stk, const char* file, const char* func, int line)
                  "\nLine: %u", file, func, line);
 
     if (Stk) {
-        fprintf(LOG,"\nLCanS = 0x%x, RCanS = 0x%x\nHash = %u\n", Stk->Lcan, Stk->Rcan, Stk->Hash);
+        fprintf(LOG,"\nLCanS = 0x%x, RCanS = 0x%x\nHashStk = %u, HashBuf = %u\n", 
+                       Stk->Lcan,    Stk->Rcan,    Stk->HashStk, Stk->HashBuf);
 
         if (Stk->buffer) {
             fprintf(LOG, "LCanA = 0x%x, RCanA = 0x%x \nStackSize = %u, StackCapacity = %u\n", 
@@ -49,7 +59,7 @@ STACK_ERROR StackDump(Stack *Stk, const char* file, const char* func, int line)
             if (Stk->size <= Stk->capacity && Stk->capacity < MAX_SIZE) {
 
                 for (size_t i = 0; i < Stk->capacity; i++) {
-                    fprintf(LOG, "StackData[%u] = %lg\n", i, Stk->data[i]);
+                    fprintf(LOG, "StackData[%u] = %d\n", i, Stk->data[i]);
                 } 
                 fclose(LOG);
                 

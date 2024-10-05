@@ -1,6 +1,8 @@
 #ifndef STACK_CHECK
 #define STACK_CHECK
 
+#include <assert.h>
+#include "Hash.h"
 #include "StackFunc.h"
 
 STACK_ERROR  StackDump      (Stack *Stk, const char* file, const char* func, int line);

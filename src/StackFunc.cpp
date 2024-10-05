@@ -14,10 +14,15 @@ int StackCtor(Stack *Stk, size_t StackSize)
         Stk->data = (StackElem_t *) (Stk->buffer + sizeof(canary_t));
         *(canary_t *) Stk->buffer = CANLA;
         *(canary_t *) (Stk->buffer + sizeof(canary_t) + Stk->capacity*sizeof(StackElem_t)) = CANRA;
-        // Stk->Hash = hash(Stk, )
+        Stk->HashBuf = djb2(Stk->data, Stk->capacity);
+        // Stk->HashStk = gon1(Stk);
     // #endif //ON_DEBUG
         STACK_DUMP(Stk);
+
         PoisonFill(Stk);
+
+        Stk->HashBuf = djb2(Stk->data, Stk->capacity);
+        Stk->HashStk = gon1(Stk);
 
         STACK_DUMP(Stk);
 
@@ -45,6 +50,9 @@ int StackPushFile(Stack *Stk, const char * FileName)
         while (fscanf(ReadFile, "%lg", &elem) != EOF)
             StackPush(Stk, elem);
 
+        Stk->HashBuf = djb2(Stk->data, Stk->capacity);
+        Stk->HashStk = gon1(Stk);
+
         return OK;
     }
 
@@ -63,6 +71,8 @@ int StackPush(Stack *Stk, StackElem_t elem)
             Stk->data[Stk->size] = elem;
             Stk->size += 1;
         }
+        Stk->HashBuf = djb2(Stk->data, Stk->capacity);
+        Stk->HashStk = gon1(Stk);
 
         STACK_DUMP(Stk);
         
@@ -82,7 +92,10 @@ int StackPop(Stack *Stk, StackElem_t *elem)
         
         Stk->size -= 1;
         *elem = Stk->data[Stk->size];
-        Stk->data[Stk->size] = -666.666;
+        Stk->data[Stk->size] = -666;
+
+        Stk->HashBuf = djb2(Stk->data, Stk->capacity);
+        Stk->HashStk = gon1(Stk);
 
         STACK_DUMP(Stk);
 
@@ -99,8 +112,9 @@ int StackDtor(Stack *Stk)
         Stk->buffer = NULL;
         Stk->Lcan = 0;
         Stk->Rcan = 0;
-        Stk->Hash = 0;
         Stk->size = 0;
+        Stk->HashStk = 0;
+        Stk->HashBuf = 0;
         Stk->capacity = 0;
 
         return OK;
@@ -116,8 +130,10 @@ int PoisonFill(Stack *Stk)
         size_t last = Stk->capacity;
         
         while (i < last) {
-            Stk->data[i++] = -666.666;
+            Stk->data[i++] = -666;
         }
+        Stk->HashBuf = djb2(Stk->data, Stk->capacity);
+        Stk->HashStk = gon1(Stk);
 
         return OK;
     }
@@ -141,6 +157,8 @@ int StackRec (Stack *Stk, double factor)
         // STACK_DUMP(Stk);
 
         PoisonFill(Stk);
+        Stk->HashBuf = djb2(Stk->data, Stk->capacity);
+        Stk->HashStk = gon1(Stk);
 
         // STACK_DUMP(Stk);
 
