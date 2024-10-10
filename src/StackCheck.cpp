@@ -1,6 +1,28 @@
 #include "StackCheck.h"
 #include "StackFunc.h"
 
+FILE *LOG = LogInit("LogFile.txt");
+
+FILE* LogInit(const char *filename) 
+{
+    assert(filename);
+
+    atexit(LogClose);
+    return fopen(filename, "w");
+}
+
+void LogClose(void)
+{   
+    if (LOG == 0)
+        return;
+
+    printf("YA RAZBITOYE SERDTSE JACKA\n");
+    fclose(LOG);
+    LOG = NULL;
+
+    return;
+}
+
 STACK_ERROR StackError(Stack *Stk) 
 {
     if (!Stk)
@@ -34,13 +56,13 @@ STACK_ERROR StackDump(Stack *Stk, const char* file, const char* func, int line)
     assert(file);
     assert(func);
 
-    FILE *LOG = fopen("LogFile.txt", "a");
-
     if (!LOG) {
         fprintf(stderr, "Could not open logfile");
 
         return FileErr;
     }
+
+    setvbuf(LOG, NULL, 0, _IONBF);
 
     fprintf(LOG, "\nFile: %s"
                  "\nFunc: %s"
@@ -61,20 +83,17 @@ STACK_ERROR StackDump(Stack *Stk, const char* file, const char* func, int line)
                 for (size_t i = 0; i < Stk->capacity; i++) {
                     fprintf(LOG, "StackData[%u] = %d\n", i, Stk->data[i]);
                 } 
-                fclose(LOG);
                 
                 return OK; 
                   
             } else {
                 fprintf(LOG, "Wrong size\n");
-                fclose(LOG);
 
                 return SizeErr;
             }
 
         } else {
             fprintf(LOG, "Buffer is broken\n"); 
-            fclose(LOG);
 
             return DataErr;
         }

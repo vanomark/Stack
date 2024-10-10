@@ -1,11 +1,8 @@
 
-
 // #include "AssertFile.h"
-#include "ColorPrintFile.h"
 #include "Hash.h"
 #include "StackCheck.h"
 #include "StackFunc.h"
-
 
 #define CHECK_ if(!err) err =
 
@@ -23,6 +20,7 @@ int main()
     }
     CHECK_ StackDtor(&Stk);
     // RED_PRINT_LOG("%d", err);
+    printf("TI LISH KUCHKA ISPRAZNENIY ZHIZNY\n");
 
     return OK;
 }

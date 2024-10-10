@@ -1,4 +1,3 @@
-#include "StackFunc.h"
 #include "Hash.h"
 
 hash_t gon1(Stack* Stk)
@@ -10,7 +9,7 @@ hash_t gon1(Stack* Stk)
     hash += (hash_t) Stk->Lcan + (hash_t) Stk->buffer + (hash_t) Stk->data;
     hash += (hash_t) Stk->capacity + (hash_t) Stk->size;
 
-    hash = hash - 1488 * Stk->size;
+    hash = hash - ( /* в стеке хэш считать не бросим, */ 1488 ) * Stk->size;  
 
     return hash;
 }
@@ -27,3 +26,4 @@ hash_t djb2(const void* data, size_t size)
 
     return hash;
 }
+

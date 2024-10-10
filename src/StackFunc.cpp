@@ -2,6 +2,7 @@
 #include "StackCheck.h"
 #include "Hash.h"
 
+
 int StackCtor(Stack *Stk, size_t StackSize)
 {   
     if (Stk && StackSize < MAX_SIZE) {
@@ -15,7 +16,7 @@ int StackCtor(Stack *Stk, size_t StackSize)
         *(canary_t *) Stk->buffer = CANLA;
         *(canary_t *) (Stk->buffer + sizeof(canary_t) + Stk->capacity*sizeof(StackElem_t)) = CANRA;
         Stk->HashBuf = djb2(Stk->data, Stk->capacity);
-        // Stk->HashStk = gon1(Stk);
+        Stk->HashStk = gon1(Stk);
     // #endif //ON_DEBUG
         STACK_DUMP(Stk);
 

@@ -3,8 +3,9 @@
 
 #include <assert.h>
 #include "StackFunc.h"
+#include "StackCheck.h"
 
-hash_t djb2(const void* data, size_t size);
+size_t djb2(const void* data, size_t size);
 hash_t gon1(Stack *Stk);
 
 #endif
