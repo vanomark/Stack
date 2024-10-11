@@ -62,7 +62,7 @@ int StackPushFile(Stack *Stk, const char * FileName)
 
 int StackPush(Stack *Stk, StackElem_t elem)
 {   
-    if (StackError(Stk) == 0) {
+    // if (StackError(Stk) == 0) {
 
         if (Stk->size >= Stk->capacity) { 
             StackRec(Stk, 2);
@@ -78,7 +78,7 @@ int StackPush(Stack *Stk, StackElem_t elem)
         STACK_DUMP(Stk);
         
         return OK;
-    }
+    // }
 
     return ERROR;
 }
